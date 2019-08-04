@@ -45,9 +45,6 @@ always @ (posedge clk or negedge reset_n)begin:PROC_RD_GPIO0_CRL
     re_gpio0_crl <= 1'b0;
 end
 
-
-always @ (posedge )
-
 always @ (posedge clk or negedge reset_n)begin:PROC_RDATA
   if(reset_n == 1'b0)begin
     cnf7[1:0]  <= 2'h0;
@@ -98,5 +95,43 @@ end
 
 assign reg_rdata[RDATA_WIDTH-1:0] = reg_rdata[RDATA_WIDTH-1:0];
 
+endmodule
+
+
+module auto_clear
+#(
+  parameter WIDTH = 1
+)(
+  clk,
+  reset_n,
+  set,
+  clear,
+  reg_out
+);
+
+input                clk;
+input                reset_n;
+input    [WIDTG-1:0] set;
+input    [WIDTH-1:0] clear;
+output   [WIDTH-1:0] reg_out;
+
+always @ (posedge clk or negedge reset_n)begin
+  if(reset_n == 1'b0)
+    set_dly[WIDTH-1:0] <= WIDTH'b0;
+  else
+    set_dly[WIDTH-1:0] <= set[WIDTH-1:0];
+end
+
+assign set_tog[WIDTH-1:0] =   set[WIDTH-1:0]  & (~set_dly[WIDTH-1:0]);
+assign clr_tog[WIDTH-1:0] = (~clr[WIDTH-1:0]) &   reg_out[WIDTH-1:0];
+
+assign reg_in[WIDTH-1:0]  = set_tog[WIDTH-1:0] | clr_tog[WIDTH-1:0];
+
+always @ (posedge clk or negedge reset_n)begin
+  if(reset_n == 1'b0)
+    reg_out[WIDTH-1:0] <= WIDTH'b0;
+  else
+    reg_out[WIDTH-1:0] <= reg_in[WIDTH-1:0];
+end
 endmodule
 
