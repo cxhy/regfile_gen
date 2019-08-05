@@ -98,7 +98,7 @@ assign reg_rdata[RDATA_WIDTH-1:0] = reg_rdata[RDATA_WIDTH-1:0];
 endmodule
 
 
-module auto_clear
+module auto_clear_level
 #(
   parameter WIDTH = 1
 )(
@@ -114,6 +114,17 @@ input                reset_n;
 input    [WIDTG-1:0] set;
 input    [WIDTH-1:0] clear;
 output   [WIDTH-1:0] reg_out;
+
+wire                 clk;
+wire                 reset_n;
+wire     [WIDTH-1:0] set;
+wire     [WIDTH-1:0] clr;
+wire     [WIDTH-1:0] clr_tog;
+wire     [WIDTH-1:0] set_tog;
+wire     [WIDTH-1:0] reg_in;
+
+reg      [WIDTH-1:0] reg_out;
+reg      [WIDTH-1:0] set_dly;
 
 always @ (posedge clk or negedge reset_n)begin
   if(reset_n == 1'b0)
@@ -135,3 +146,40 @@ always @ (posedge clk or negedge reset_n)begin
 end
 endmodule
 
+module auto_clear_trig
+#(
+  parameter WIDTH = 1
+)(
+  clk,
+  reset_n,
+  set,
+  clear,
+  reg_out
+);
+
+input                clk;
+input                reset_n;
+input    [WIDTG-1:0] set;
+input    [WIDTH-1:0] clear;
+output   [WIDTH-1:0] reg_out;
+
+wire                 clk;
+wire                 reset_n;
+wire     [WIDTH-1:0] set;
+wire     [WIDTH-1:0] clr;
+wire     [WIDTH-1:0] clr_tog;
+wire     [WIDTH-1:0] reg_in;
+
+reg      [WIDTH-1:0] reg_out;
+
+assign clr_tog[WIDTH-1:0] = (~clr[WIDTH-1:0]) &   reg_out[WIDTH-1:0];
+
+assign reg_in[WIDTH-1:0]  = set[WIDTH-1:0] | clr_tog[WIDTH-1:0];
+
+always @ (posedge clk or negedge reset_n)begin
+  if(reset_n == 1'b0)
+    reg_out[WIDTH-1:0] <= WIDTH'b0;
+  else
+    reg_out[WIDTH-1:0] <= reg_in[WIDTH-1:0];
+end
+endmodule
