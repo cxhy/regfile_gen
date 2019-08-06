@@ -27,13 +27,21 @@ use Getopt::Long;
 ###############################################################################
 #golbal variable
 ###############################################################################
+my @RDarg;
+
 my $g_srcfile_name;
 
 my $g_max_addr_width = 0;
 
 my $g_start_row = 4;
-my $g_start_clome = "A";
+my $g_start_col = 1;
 
+my $g_max_row;
+my $g_max_col;
+
+
+push @RDarg, strip => 1;
+push @RDarg, attr  => 1;
 use vars qw($opt_h $opt_v );
 GetOptions(
   'help|h'       => \$opt_h,
@@ -49,22 +57,31 @@ if($opt_v){
   print "0.1\n";
 }
 
-
 $g_srcfile_name = shift(@ARGV);
 
 die "Cannot open file $g_srcfile_name\n" unless(-e $g_srcfile_name);
 
-my $book = Spreadsheet::Read->new ($g_srcfile_name);
-my $sheet = $book->sheet (1);
-my $cell  = $sheet->cell ("C5");
-my $cell2  = $sheet->cell ("C6");
-my $cell3  = $sheet->cell ("D5");
-my $cell4  = $sheet->cell (1,3);
-my $sheet_max_row = $sheet->maxrow;
-my $sheet_max_col = $sheet->maxcol;
+my $book = ReadData ($g_srcfile_name, @RDarg)->[1] or die "cannot read $g_srcfile_name\n";
+$g_max_row = $book->{maxrow};
+$g_max_col = $book->{maxcol};
+# my $xx = $book->{maxcol};
+# my $yy = $book->{maxrow};
+# my $cell = cr2cell(3,5);
+# my $zz = $book->{$cell};
 
-print "$sheet_max_row\n";
-print "$sheet_max_col\n";
+# print "$xx\n";
+# print "$yy\n";
+# print "$zz\n";
+# print "$book->{attr}[4][5]{merged}\n";
+
+# foreach my $row (1 .. $book->{maxrow}) {
+#     foreach my $col (1 .. $book->{maxcol}) {
+#         my $cell = cr2cell ($col, $row);
+#         printf "%s %-3s %d  ", $cell, $book->{$cell},
+#             $book->{attr}[$col][$row]{merged};
+#         }
+#     print "\n";
+#     }
 
 &check_data();
 
@@ -78,13 +95,12 @@ sub check_data(){
   
 }
 
+#This function returns the bit width of the largest offset address
 sub cal_max_offset(){
-  #计算最大偏移地址
-  #返回reg_addr的最大位宽
-  my $max_offset_cell = $sheet->cell(4,5);
-
-  print "$max_offset_cell\n";
-
+  my $cell_tmp = cr2cell($g_start_col,($g_max_row-2));
+  my $max_addr_h = $book->{$cell_tmp};
+  my $max_addr_b = sprintf "%b", hex(substr($max_addr_h,2));
+  my $g_max_addr_width = length($max_addr_b);
 }
 
 
