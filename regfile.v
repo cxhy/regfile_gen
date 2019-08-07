@@ -3,8 +3,8 @@ module regfile
   parameter GPIO0_CRL_ADDR = 32'h0,
   parameter GPIO0_CRH_ADDR = 32'h4,
 
-  parameter WDATA_WIDTH = 32,
-  parameter RDATA_WIDTH = 32,
+  parameter DATA_WIDTH = 32,
+  parameter DATA_WIDTH = 32,
   parameter ADDR_WIDTH  = 32
 )
 (
@@ -20,8 +20,8 @@ module regfile
 
 
   //bus ports
-  reg_wdata[WDATA_WIDTH-1:0],
-  reg_rdata[RDATA_WIDTH-1:0],
+  reg_wdata[DATA_WIDTH-1:0],
+  reg_rdata[DATA_WIDTH-1:0],
   reg_addr[ADDR_WIDTH-1:0],
   reg_en,
   reg_we
@@ -86,14 +86,14 @@ end
 
 
 always @ (*)begin
-  reg_rdata_tmp[RDATA_WIDTH-1:0] = {RDATA_WIDTH{1'b0}};
+  reg_rdata_tmp[DATA_WIDTH-1:0] = {RDATA_WIDTH{1'b0}};
   case(reg_addr[2:0])
-    GPIO0_CRL_ADDR : reg_rdata_tmp[RDATA_WIDTH-1:0] = {cnf7[1:0],mode7[1:0],cnf6[1:0],mode6[1:0],cnf5[1:0],mode5[1:0],cnf4[1:0],mode4[1:0],cnf3[1:0],mode3[1:0],cnf2[1:0],mode2[1:0],cnf1[1:0],mode1[1:0],cnf0[1:0],mode0[1:0]};
-    default        : reg_rdata_tmp[RDATA_WIDTH-1:0] = {RDATA_WIDTH{1'b0}};
+    GPIO0_CRL_ADDR : reg_rdata_tmp[DATA_WIDTH-1:0] = {cnf7[1:0],mode7[1:0],cnf6[1:0],mode6[1:0],cnf5[1:0],mode5[1:0],cnf4[1:0],mode4[1:0],cnf3[1:0],mode3[1:0],cnf2[1:0],mode2[1:0],cnf1[1:0],mode1[1:0],cnf0[1:0],mode0[1:0]};
+    default        : reg_rdata_tmp[DATA_WIDTH-1:0] = {RDATA_WIDTH{1'b0}};
   endcase
 end
 
-assign reg_rdata[RDATA_WIDTH-1:0] = reg_rdata[RDATA_WIDTH-1:0];
+assign reg_rdata[DATA_WIDTH-1:0] = reg_rdata[RDATA_WIDTH-1:0];
 
 endmodule
 
